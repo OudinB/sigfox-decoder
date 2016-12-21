@@ -1,5 +1,7 @@
 # Sigfox Data Decoder
 
+[![Build Status](https://travis-ci.org/ingeniousthings/sigfox-decocder.svg?branch=master)](https://travis-ci.org/ingeniousthings/sigfox-decocder)
+
 [Sigfox](https://www.sigfox.com) is a low-energy wireless network mainly used in the IoT world.
 A Sigfox message permits to transmit 12 bytes of data in a user-defined schema.
 

@@ -2,7 +2,7 @@ os:
   - linux
 language: java
 jdk:
-  - openjdk8
+  - oraclejdk8
 sudo: false
 cache:
   directories:
@@ -11,8 +11,7 @@ before_install:
   - java -version
 script:
   - ./mvnw clean
-  - ./mvnw test
-  - ./mvnw package -DskipTests
+  - ./mvnw package
 notifications:
   webhooks:
     on_success: change  # options: [always|never|change] default: always
