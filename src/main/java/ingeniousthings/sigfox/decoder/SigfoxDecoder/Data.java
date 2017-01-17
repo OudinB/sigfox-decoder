@@ -1,27 +1,19 @@
-package SigfoxDecoder;
+package ingeniousthings.sigfox.decoder.SigfoxDecoder;
 
 public class Data {
-	private String nom;
+	private String name;
 	private Object var;
 	
-	public Data() {
-		super();
-	}
-	public Data(String nom) {
-		super();
-		this.nom = nom;
+	public Data() {	}
+	public Data(String name, Object var) {
+		this.name = name;
+		this.var = var;
 	}
 	
-	public String getNom() {
-		return nom;
-	}
-	public void setNom(String nom) {
-		this.nom = nom;
+	public String getName() {
+		return name;
 	}
 	public Object getVar() {
 		return var;
-	}
-	public void setVar(Object var) {
-		this.var = var;
 	}
 }

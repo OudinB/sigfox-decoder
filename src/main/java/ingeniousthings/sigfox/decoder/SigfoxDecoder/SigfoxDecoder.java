@@ -1,25 +1,18 @@
-package SigfoxDecoder;
-import SigfoxDecoder.SigfoxData;
-import Exception.SyntaxError;
-import Exception.UnknownType;
-import SigfoxDecoder.Format;
+package ingeniousthings.sigfox.decoder.SigfoxDecoder;
+
+import ingeniousthings.sigfox.decoder.Exception.*;
 
 public class SigfoxDecoder {
 	
 	private Format[] format;
 	
-	public SigfoxDecoder() {
-		super();
-	}
+	public SigfoxDecoder() { }
 	public SigfoxDecoder(Format[] format) {
-		super();
 		this.format = new Format[format.length];
 		this.setFormat(format);
 	}
 	public SigfoxDecoder(String formatStr) {
-		super();
-		
-		format = new Format[nmbVar(formatStr)];
+		format = new Format[countVar(formatStr)];
 		if(format.length > 0) {
 			int i = 0;		//itérateur sur formatStr
 			int j = 0;		//itérateur sur format
@@ -27,7 +20,7 @@ public class SigfoxDecoder {
 				try {
 					i = intervalVar(i, j, formatStr);
 					i = typeVar(i, j, formatStr);
-					i = nomVar(i, j, formatStr);
+					i = nameVar(i, j, formatStr);
 					j++;
 				}
 				catch(UnknownType ut) {
@@ -45,9 +38,9 @@ public class SigfoxDecoder {
 						i = formatStr.length();
 					
 					format[j].setType(null);
-					format[j].setNom(null);
-					format[j].setDeb(-1);
-					format[j++].setFin(-1);
+					format[j].setName(null);
+					format[j].setBegin(-1);
+					format[j++].setEnd(-1);
 				}
 				catch(Exception e) {
 					i = formatStr.length();
@@ -60,60 +53,60 @@ public class SigfoxDecoder {
 		return format;
 	}
 	public void setFormatAt(int i, Format format) {
-		this.format[i].type = format.type;
-		this.format[i].deb = format.deb;
-		this.format[i].fin = format.fin;
+		this.format[i].setType(format.getType());
+		this.format[i].setBegin(format.getBegin());
+		this.format[i].setEnd(format.getEnd());
 	}
 	public void setFormat(Format[] format) {
 		for(int i=0;i<format.length;++i) {
-			this.format[i].type = format[i].type;
-			this.format[i].deb = format[i].deb;
-			this.format[i].fin = format[i].fin;
+			this.format[i].setType(format[i].getType());
+			this.format[i].setBegin(format[i].getBegin());
+			this.format[i].setEnd(format[i].getEnd());
 		}
 	}
 	
-	private int nmbVar(String formatStr) {
+	private int countVar(String formatStr) {
 		int i = 0;
 		int length = formatStr.length();
-		int nmb = 0;
+		int count = 0;
 		
 		while(i < length) {
 			while(i < length && formatStr.charAt(i) != ' ')
 				i++;
 			if(i < length)
 				i++;
-			nmb++;
+			count++;
 		}
 		
-		return nmb;
+		return count;
 	}
 	private int intervalVar(int i, int j, String formatStr) throws SyntaxError {
 		int length = formatStr.length();
-		format[j] = new Format();
+		format[j] = new Format(null,null,-1,-1);
 		
-		String tmpDeb = new String();
+		String tmpBegin = new String();
 		while(i < length && Character.isDigit(formatStr.charAt(i)))
-			tmpDeb = tmpDeb + formatStr.charAt(i++);
+			tmpBegin = tmpBegin + formatStr.charAt(i++);
 
 		if(i < length && formatStr.charAt(i) == '-') {
 			++i;
-			if(tmpDeb.length() > 0)
-				format[j].setDeb(Integer.parseInt(tmpDeb));
+			if(tmpBegin.length() > 0)
+				format[j].setBegin(Integer.parseInt(tmpBegin));
 			else
-				format[j].setDeb(0);
+				format[j].setBegin(0);
 		} else
 			throw new SyntaxError();
 			
-		String tmpFin = new String();
+		String tmpEnd = new String();
 		while(i < length && Character.isDigit(formatStr.charAt(i)))
-			tmpFin = tmpFin + formatStr.charAt(i++);
+			tmpEnd = tmpEnd + formatStr.charAt(i++);
 		
 		if(i < length && formatStr.charAt(i) == ':') {
 			i++;
-			if(tmpFin.length() > 0)
-				format[j].setFin(Integer.parseInt(tmpFin));
+			if(tmpEnd.length() > 0)
+				format[j].setEnd(Integer.parseInt(tmpEnd));
 			else
-				format[j].setFin(Integer.MAX_VALUE);
+				format[j].setEnd(Integer.MAX_VALUE);
 		} else
 			throw new SyntaxError();
 		
@@ -131,25 +124,25 @@ public class SigfoxDecoder {
 			
 			switch(tmpType) {
 			case "bool" :
-				format[j].setType(VarType.Boolean);
+				format[j].setType(VarType.BOOLEAN);
 				break;
 			case "byte" :
-				format[j].setType(VarType.Byte);
+				format[j].setType(VarType.BYTE);
 				break;
 			case "int" :
-				format[j].setType(VarType.Integer);
+				format[j].setType(VarType.INTEGER);
 				break;
 			case "float" :
-				format[j].setType(VarType.Float);
+				format[j].setType(VarType.FLOAT);
 				break;
 			case "double" :
-				format[j].setType(VarType.Double);
+				format[j].setType(VarType.DOUBLE);
 				break;
 			case "char" :
-				format[j].setType(VarType.Char);
+				format[j].setType(VarType.CHAR);
 				break;
 			case "str" :
-				format[j].setType(VarType.String);
+				format[j].setType(VarType.STRING);
 				break;
 			default :
 				throw new UnknownType();
@@ -159,57 +152,57 @@ public class SigfoxDecoder {
 
 		return i;
 	}
-	private int nomVar(int i, int j, String formatStr) throws SyntaxError {
+	private int nameVar(int i, int j, String formatStr) throws SyntaxError {
 		int length = formatStr.length();
 		
 
-		String tmpNom = new String();
+		String tmpName = new String();
 		while(i < length && (Character.isLetter(formatStr.charAt(i)) || Character.isDigit(formatStr.charAt(i))))
-			tmpNom = tmpNom + formatStr.charAt(i++);
+			tmpName = tmpName + formatStr.charAt(i++);
 		
 		if(i == length || (i < length && formatStr.charAt(i) == ' ')) {
 			++i;
-			format[j].setNom(tmpNom);
+			format[j].setName(tmpName);
 		} else
 			throw new SyntaxError();
 		
 		return i;
 	}
 	
-	private int makeInt(int[] byteCh, int deb, int fin) {
+	private int makeInt(int[] byteStr, int begin, int end) {
 		int res = 0;
-		for(int i=0;i<fin+1-deb;++i)
-			res += byteCh[fin-i]*Math.pow(2,i);
+		for(int i=0;i<end+1-begin;++i)
+			res += byteStr[end-i]*Math.pow(2,i);
 		return res;
 	}
-	private float makeFloat(int[] byteCh, int deb, int fin) {
+	private float makeFloat(int[] byteStr, int begin, int end) {
 		float res = 0;
-		for(int i=0;i<fin-deb;++i)
-			res += byteCh[fin-i]*Math.pow(2,i);
+		for(int i=0;i<end-begin;++i)
+			res += byteStr[end-i]*Math.pow(2,i);
 		
 		return res;
 	}
-	private double makeDouble(int[] byteCh, int deb, int fin) {
+	private double makeDouble(int[] byteStr, int begin, int end) {
 		double res = 0;
-		for(int i=0;i<fin-deb;++i)
-			res += byteCh[fin-i]*Math.pow(2,i);
+		for(int i=0;i<end-begin;++i)
+			res += byteStr[end-i]*Math.pow(2,i);
 		
 		return res;
 	}
-	private char makeChar(int[] byteCh, int deb) {
-		return (char) makeInt(byteCh, deb, deb+7);
+	private char makeChar(int[] byteCh, int begin) {
+		return (char) makeInt(byteCh, begin, begin+7);
 	}
-	private String makeString(int[] byteCh, int deb, int fin) {
+	private String makeString(int[] byteStr, int begin, int end) {
 		String res = new String();
 
-		for(int i=0;i<(fin+1-deb)/8;++i)
-			res += makeChar(byteCh, deb+i*8);
+		for(int i=0;i<(end+1-begin)/8;++i)
+			res += makeChar(byteStr, begin+i*8);
 		
 		return res;
 	}
 	
-	private static int[] toByteCh(String s) {
-		int[] byteCh = new int[s.length()*4];
+	private static int[] toByteStr(String s) {
+		int[] byteStr = new int[s.length()*4];
 		for(int i=0;i<s.length();++i) {
 			int tmp = 0;
 
@@ -221,41 +214,41 @@ public class SigfoxDecoder {
 				else
 					tmp = 10 + s.charAt(i) - 'a';
 				
-			byteCh[i*4+3] = tmp%2;
-			byteCh[i*4+2] = ((int) tmp/2)%2;
-			byteCh[i*4+1] = ((int) ((int) tmp/2)/2)%2;
-			byteCh[i*4] = ((int) ((int) ((int) tmp/2)/2)/2)%2;;
+			byteStr[i*4+3] = tmp%2;
+			byteStr[i*4+2] = ((int) tmp/2)%2;
+			byteStr[i*4+1] = ((int) ((int) tmp/2)/2)%2;
+			byteStr[i*4] = ((int) ((int) ((int) tmp/2)/2)/2)%2;;
 		}
-	    return byteCh;
+	    return byteStr;
 	}
 	
 	public SigfoxData decode(String trame) {
-		int[] bTrame = toByteCh(trame);
+		int[] bTrame = toByteStr(trame);
 		SigfoxData data = new SigfoxData(format.length);
 		
 		for(int i=0;i<format.length;++i) {
 			try {
-				switch(format[i].type) {
-				case Boolean :
-					data.add(i, format[i].getNom(), (Boolean) (bTrame[format[i].getDeb()] == 1));
+				switch(format[i].getType()) {
+				case BOOLEAN :
+					data.add(i, format[i].getName(), (Boolean) (bTrame[format[i].getBegin()] == 1));
 					break;
-				case Byte :
-					data.add(i, format[i].getNom(), bTrame[format[i].getDeb()]);
+				case BYTE :
+					data.add(i, format[i].getName(), bTrame[format[i].getBegin()]);
 					break;
-				case Integer :
-					data.add(i, format[i].getNom(), (Integer) makeInt(bTrame, format[i].getDeb(), format[i].getFin()));
+				case INTEGER :
+					data.add(i, format[i].getName(), (Integer) makeInt(bTrame, format[i].getBegin(), format[i].getEnd()));
 					break;
-				case Float :
-					data.add(i, format[i].getNom(), (Float) makeFloat(bTrame, format[i].getDeb(), format[i].getFin()));
+				case FLOAT :
+					data.add(i, format[i].getName(), (Float) makeFloat(bTrame, format[i].getBegin(), format[i].getEnd()));
 					break;
-				case Double :
-					data.add(i, format[i].getNom(), (Double) makeDouble(bTrame, format[i].getDeb(), format[i].getFin()));
+				case DOUBLE :
+					data.add(i, format[i].getName(), (Double) makeDouble(bTrame, format[i].getBegin(), format[i].getEnd()));
 					break;
-				case Char :
-					data.add(i, format[i].getNom(), (Character) makeChar(bTrame, format[i].getDeb()));
+				case CHAR :
+					data.add(i, format[i].getName(), (Character) makeChar(bTrame, format[i].getBegin()));
 					break;
-				case String :
-					data.add(i, format[i].getNom(), makeString(bTrame, format[i].getDeb(), format[i].getFin()));
+				case STRING :
+					data.add(i, format[i].getName(), makeString(bTrame, format[i].getBegin(), format[i].getEnd()));
 					break;
 				default :
 					throw new UnknownType();
@@ -265,12 +258,12 @@ public class SigfoxDecoder {
 		return data;
 	}
 
-	public void afficher() {
+	public void display() {
 		for(int i=0;i<format.length;++i)
-			System.out.println("Var n°" + i + " : \"" + format[i].getNom()
-					+ "\" de type " + format[i].getType()
-					+ " sur les bits " + format[i].getDeb()
-					+ " à " + format[i].getFin());
+			System.out.println("Var n°" + i + " : \"" + format[i].getName()
+					+ "\" of type " + format[i].getType()
+					+ " occupying bits from " + format[i].getBegin()
+					+ " to " + format[i].getEnd());
 	}
 
 }

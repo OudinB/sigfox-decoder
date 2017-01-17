@@ -1,9 +1,9 @@
 package ingeniousthings.decoder;
 
-import ingeniousthings.sigfox.decoder.SigfoxData;
-import ingeniousthings.sigfox.decoder.SigfoxDecoder;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
+
+import ingeniousthings.sigfox.decoder.SigfoxDecoder.*;
 
 public class SigfoxDecoderTest {
 

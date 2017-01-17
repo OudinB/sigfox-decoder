@@ -1,23 +1,17 @@
-package SigfoxDecoder;
-import Exception.UnregisteredVar;
-import SigfoxDecoder.Data;
+package ingeniousthings.sigfox.decoder.SigfoxDecoder;
+
+import ingeniousthings.sigfox.decoder.Exception.UnregisteredVar;
 
 public class SigfoxData {
 	private Data[] data;
 	
-	public SigfoxData() {
-		super();
-	}
+	public SigfoxData() { }
 	public SigfoxData(int length) {
-		super();
 		data = new Data[length];
 	}
 	
 	public Object[] getData() {
 		return data;
-	}
-	public void setDataVarAt(int i, Object dataVar) {
-		this.data[i].setVar(dataVar);
 	}
 	public void setDataAt(int i, Data data) {
 		this.data[i] = data;
@@ -26,71 +20,70 @@ public class SigfoxData {
 		this.data = data;
 	}
 	
-	public void add(int i, String nom, Object var) {
-		data[i] = new Data(nom);
-		data[i].setVar(var);
+	public void add(int i, String name, Object var) {
+		data[i] = new Data(name, var);
 	}
 	
-	private int find(String nom) {
+	private int find(String name) {
 		int i = 0;
-		while(i < data.length && data[i].getNom() != nom)
+		while(i < data.length && data[i].getName() != name)
 			i++;
 		return i;
 	}
 	
-	public boolean getBool(String nom) throws UnregisteredVar {
-		int i = find(nom);
+	public boolean getBool(String name) throws UnregisteredVar {
+		int i = find(name);
 		if(i < data.length)
-			return (boolean) data[find(nom)].getVar();
+			return (boolean) data[find(name)].getVar();
 		else
 			throw new UnregisteredVar();
 	}
-	public byte getByte(String nom) throws UnregisteredVar {
-		int i = find(nom);
+	public byte getByte(String name) throws UnregisteredVar {
+		int i = find(name);
 		if(i < data.length)
-			return (byte) data[find(nom)].getVar();
+			return (byte) data[find(name)].getVar();
 		else
 			throw new UnregisteredVar();
 	}
-	public int getInt(String nom) throws UnregisteredVar {
-		int i = find(nom);
+	public int getInt(String name) throws UnregisteredVar {
+		int i = find(name);
 		if(i < data.length)
-			return (int) data[find(nom)].getVar();
+			return (int) data[find(name)].getVar();
 		else
 			throw new UnregisteredVar();
 	}
-	public float getFloat(String nom) throws UnregisteredVar {
-		int i = find(nom);
+	public float getFloat(String name) throws UnregisteredVar {
+		int i = find(name);
 		if(i < data.length)
-			return (float) data[find(nom)].getVar();
+			return (float) data[find(name)].getVar();
 		else
 			throw new UnregisteredVar();
 	}
-	public double getDouble(String nom) throws UnregisteredVar {
-		int i = find(nom);
+	public double getDouble(String name) throws UnregisteredVar {
+		int i = find(name);
 		if(i < data.length)
-			return (double) data[find(nom)].getVar();
+			return (double) data[find(name)].getVar();
 		else
 			throw new UnregisteredVar();
 	}
-	public char getChar(String nom) throws UnregisteredVar {
-		int i = find(nom);
+	public char getChar(String name) throws UnregisteredVar {
+		int i = find(name);
 		if(i < data.length)
-			return (char) data[find(nom)].getVar();
+			return (char) data[find(name)].getVar();
 		else
 			throw new UnregisteredVar();
 	}
-	public String getString(String nom) throws UnregisteredVar {
-		int i = find(nom);
+	public String getString(String name) throws UnregisteredVar {
+		int i = find(name);
 		if(i < data.length)
-			return (String) data[find(nom)].getVar();
+			return (String) data[find(name)].getVar();
 		else
 			throw new UnregisteredVar();
 	}
 	
-	public void afficher() {
+	public void display() {
 		for(int i=0;i<data.length;++i)
-			System.out.println("Var n°" + i + " : " + data[i].getNom()
+			System.out.println("Var n°" + i + " : " + data[i].getName()
 					+ " = " + data[i].getVar());
 	}
 }
