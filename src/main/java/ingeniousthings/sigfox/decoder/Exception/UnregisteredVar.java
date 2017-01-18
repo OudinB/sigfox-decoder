@@ -5,6 +5,6 @@ public class UnregisteredVar extends Exception {
 
 	public UnregisteredVar() {
 		System.err.println("Variable non enregistrée : vérifiez l'orthographe.");
-		//a remplacer par prinstack et a ecrire en anglais
+		//à remplacer par prinstack et à ecrire en anglais
 	}
 }

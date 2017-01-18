@@ -11,41 +11,18 @@ public class SigfoxDecoder {
 		this.format = new Format[format.length];
 		this.setFormat(format);
 	}
-	public SigfoxDecoder(String formatStr) {
-		format = new Format[countVar(formatStr)];
-		if(format.length > 0) {
-			int i = 0;		//itérateur sur formatStr
-			int j = 0;		//itérateur sur format
-			while(i < formatStr.length()) {
-				try {
-					i = intervalVar(i, j, formatStr);
-					i = typeVar(i, j, formatStr);
-					i = nameVar(i, j, formatStr);
-					j++;
-				}
-				catch(UnknownType ut) {
-					if(i < formatStr.length()) {
-						i = formatStr.indexOf(' ', i) + 1;
-						if(i == 0)
-							i = formatStr.length();
-						else
-							j++;
-					}
-				}
-				catch(SyntaxError se) {
-					i = formatStr.indexOf(' ', i) + 1;
-					if(i == 0)
-						i = formatStr.length();
-					
-					format[j].setType(null);
-					format[j].setName(null);
-					format[j].setBegin(-1);
-					format[j++].setEnd(-1);
-				}
-				catch(Exception e) {
-					i = formatStr.length();
-				}
-			}
+	public SigfoxDecoder(String formatStr) throws SyntaxError, UnknownType {
+		String[] lsVar = formatStr.split(" ");
+		format = new Format[lsVar.length];
+		for(int i=0; i<lsVar.length; ++i) {
+			String[] formatTmp = lsVar[i].split(":");
+			if(formatTmp.length == 3) {
+				VarType type = typeVar(formatTmp[1]);
+				String[] interval = formatTmp[0].split("-");
+			
+				format[i] = new Format(type, formatTmp[2], Integer.parseInt(interval[0]), Integer.parseInt(interval[1]));
+			} else
+				throw new SyntaxError();
 		}
 	}
 	
@@ -53,120 +30,42 @@ public class SigfoxDecoder {
 		return format;
 	}
 	public void setFormatAt(int i, Format format) {
-		this.format[i].setType(format.getType());
-		this.format[i].setBegin(format.getBegin());
-		this.format[i].setEnd(format.getEnd());
+		this.format[i] = new Format(format.getType(), format.getName(), format.getBegin(), format.getEnd());
 	}
 	public void setFormat(Format[] format) {
 		for(int i=0;i<format.length;++i) {
-			this.format[i].setType(format[i].getType());
-			this.format[i].setBegin(format[i].getBegin());
-			this.format[i].setEnd(format[i].getEnd());
+			this.format[i] = new Format(format[i].getType(), format[i].getName(), format[i].getBegin(), format[i].getEnd());
 		}
 	}
 	
-	private int countVar(String formatStr) {
-		int i = 0;
-		int length = formatStr.length();
-		int count = 0;
-		
-		while(i < length) {
-			while(i < length && formatStr.charAt(i) != ' ')
-				i++;
-			if(i < length)
-				i++;
-			count++;
-		}
-		
-		return count;
-	}
-	private int intervalVar(int i, int j, String formatStr) throws SyntaxError {
-		int length = formatStr.length();
-		format[j] = new Format(null,null,-1,-1);
-		
-		String tmpBegin = new String();
-		while(i < length && Character.isDigit(formatStr.charAt(i)))
-			tmpBegin = tmpBegin + formatStr.charAt(i++);
-
-		if(i < length && formatStr.charAt(i) == '-') {
-			++i;
-			if(tmpBegin.length() > 0)
-				format[j].setBegin(Integer.parseInt(tmpBegin));
-			else
-				format[j].setBegin(0);
-		} else
-			throw new SyntaxError();
-			
-		String tmpEnd = new String();
-		while(i < length && Character.isDigit(formatStr.charAt(i)))
-			tmpEnd = tmpEnd + formatStr.charAt(i++);
-		
-		if(i < length && formatStr.charAt(i) == ':') {
-			i++;
-			if(tmpEnd.length() > 0)
-				format[j].setEnd(Integer.parseInt(tmpEnd));
-			else
-				format[j].setEnd(Integer.MAX_VALUE);
-		} else
-			throw new SyntaxError();
-		
-		return i;
-	}
-	private int typeVar(int i, int j, String formatStr) throws SyntaxError, UnknownType {
-		int length = formatStr.length();
-
-		String tmpType = new String();
-		while(i < length && formatStr.charAt(i) != ' ' && formatStr.charAt(i) != ':')
-			tmpType = tmpType + formatStr.charAt(i++);
-
-		if(i < length && formatStr.charAt(i) == ':') {
-			i++;
-			
-			switch(tmpType) {
+	private VarType typeVar(String typeStr) throws UnknownType {
+		VarType type;
+		switch(typeStr) {
 			case "bool" :
-				format[j].setType(VarType.BOOLEAN);
+				type = VarType.BOOLEAN;
 				break;
 			case "byte" :
-				format[j].setType(VarType.BYTE);
+				type = VarType.BYTE;
 				break;
 			case "int" :
-				format[j].setType(VarType.INTEGER);
+				type = VarType.INTEGER;
 				break;
 			case "float" :
-				format[j].setType(VarType.FLOAT);
+				type = VarType.FLOAT;
 				break;
 			case "double" :
-				format[j].setType(VarType.DOUBLE);
+				type = VarType.DOUBLE;
 				break;
 			case "char" :
-				format[j].setType(VarType.CHAR);
+				type = VarType.CHAR;
 				break;
 			case "str" :
-				format[j].setType(VarType.STRING);
+				type = VarType.STRING;
 				break;
 			default :
 				throw new UnknownType();
-			}
-		} else
-			throw new SyntaxError();
-
-		return i;
-	}
-	private int nameVar(int i, int j, String formatStr) throws SyntaxError {
-		int length = formatStr.length();
-		
-
-		String tmpName = new String();
-		while(i < length && (Character.isLetter(formatStr.charAt(i)) || Character.isDigit(formatStr.charAt(i))))
-			tmpName = tmpName + formatStr.charAt(i++);
-		
-		if(i == length || (i < length && formatStr.charAt(i) == ' ')) {
-			++i;
-			format[j].setName(tmpName);
-		} else
-			throw new SyntaxError();
-		
-		return i;
+		}
+		return type;
 	}
 	
 	private int makeInt(int[] byteStr, int begin, int end) {
@@ -222,38 +121,36 @@ public class SigfoxDecoder {
 	    return byteStr;
 	}
 	
-	public SigfoxData decode(String trame) {
+	public SigfoxData decode(String trame) throws UnknownType {
 		int[] bTrame = toByteStr(trame);
 		SigfoxData data = new SigfoxData(format.length);
 		
 		for(int i=0;i<format.length;++i) {
-			try {
-				switch(format[i].getType()) {
-				case BOOLEAN :
-					data.add(i, format[i].getName(), (Boolean) (bTrame[format[i].getBegin()] == 1));
-					break;
-				case BYTE :
-					data.add(i, format[i].getName(), bTrame[format[i].getBegin()]);
-					break;
-				case INTEGER :
-					data.add(i, format[i].getName(), (Integer) makeInt(bTrame, format[i].getBegin(), format[i].getEnd()));
-					break;
-				case FLOAT :
-					data.add(i, format[i].getName(), (Float) makeFloat(bTrame, format[i].getBegin(), format[i].getEnd()));
-					break;
-				case DOUBLE :
-					data.add(i, format[i].getName(), (Double) makeDouble(bTrame, format[i].getBegin(), format[i].getEnd()));
-					break;
-				case CHAR :
-					data.add(i, format[i].getName(), (Character) makeChar(bTrame, format[i].getBegin()));
-					break;
-				case STRING :
-					data.add(i, format[i].getName(), makeString(bTrame, format[i].getBegin(), format[i].getEnd()));
-					break;
-				default :
-					throw new UnknownType();
-				}
-			} catch(UnknownType ut) {}
+			switch(format[i].getType()) {
+			case BOOLEAN :
+				data.add(i, format[i].getName(), (Boolean) (bTrame[format[i].getBegin()] == 1));
+				break;
+			case BYTE :
+				data.add(i, format[i].getName(), bTrame[format[i].getBegin()]);
+				break;
+			case INTEGER :
+				data.add(i, format[i].getName(), (Integer) makeInt(bTrame, format[i].getBegin(), format[i].getEnd()));
+				break;
+			case FLOAT :
+				data.add(i, format[i].getName(), (Float) makeFloat(bTrame, format[i].getBegin(), format[i].getEnd()));
+				break;
+			case DOUBLE :
+				data.add(i, format[i].getName(), (Double) makeDouble(bTrame, format[i].getBegin(), format[i].getEnd()));
+				break;
+			case CHAR :
+				data.add(i, format[i].getName(), (Character) makeChar(bTrame, format[i].getBegin()));
+				break;
+			case STRING :
+				data.add(i, format[i].getName(), makeString(bTrame, format[i].getBegin(), format[i].getEnd()));
+				break;
+			default :
+				throw new UnknownType();
+			}
 		}
 		return data;
 	}
