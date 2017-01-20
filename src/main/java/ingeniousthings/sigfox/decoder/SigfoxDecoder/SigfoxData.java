@@ -1,21 +1,14 @@
 package ingeniousthings.sigfox.decoder.SigfoxDecoder;
 
 import java.util.*;
-
-import exceptions.UnregisteredVar;
+import exceptions.*;
 
 public class SigfoxData {
-	private List<Data> data;
+	private List<Data> data = new ArrayList<Data>();;
 	
-	public SigfoxData() {
-		this.data = new ArrayList<Data>();
-	}
-	public SigfoxData(int length) {
-		this.data = new ArrayList<Data>(length);
-	}
+	public SigfoxData() { }
 	public SigfoxData(List<Data> data) {
-		this.data = new ArrayList<Data>(data.size());
-		Collections.copy(this.data, data);
+		this.data.addAll(data);
 	}
 	
 	public List<Data> getData() {
@@ -23,64 +16,15 @@ public class SigfoxData {
 	}
 	
 	public void add(int i, String name, Object var) {
-		data.add(i, (Data) new Data(name, var));
+		data.add(i, new Data(name, var));
 	}
 	
-	private int find(String name) {
-		int i = 0;
-		while(i < data.size() && !data.get(i).getName().equals(name))
-			i++;
-		return i;
-	}
-	
-	public boolean getBool(String name) throws UnregisteredVar {
-		int i = find(name);
+	public Object get(String name) throws UnregisteredVarException {
+		int i = data.indexOf(new Data(name));
 		if(i != -1)
-			return (boolean) data.get(i).getVar();
+			return data.get(i).getVar();
 		else
-			throw new UnregisteredVar();
-	}
-	public byte getByte(String name) throws UnregisteredVar {
-		int i = find(name);
-		if(i != -1)
-			return (byte) data.get(i).getVar();
-		else
-			throw new UnregisteredVar();
-	}
-	public int getInt(String name) throws UnregisteredVar {
-		int i = find(name);
-		if(i < this.data.size())
-			return (int) data.get(i).getVar();
-		else
-			throw new UnregisteredVar();
-	}
-	public float getFloat(String name) throws UnregisteredVar {
-		int i = find(name);
-		if(i != -1)
-			return (int) data.get(i).getVar();
-		else
-			throw new UnregisteredVar();
-	}
-	public double getDouble(String name) throws UnregisteredVar {
-		int i = find(name);
-		if(i != -1)
-			return (double) data.get(i).getVar();
-		else
-			throw new UnregisteredVar();
-	}
-	public char getChar(String name) throws UnregisteredVar {
-		int i = find(name);
-		if(i != -1)
-			return (char) data.get(i).getVar();
-		else
-			throw new UnregisteredVar();
-	}
-	public String getString(String name) throws UnregisteredVar {
-		int i = find(name);
-		if(i != -1)
-			return (String) data.get(i).getVar();
-		else
-			throw new UnregisteredVar();
+			throw new UnregisteredVarException();
 	}
 	
 	public void display() {

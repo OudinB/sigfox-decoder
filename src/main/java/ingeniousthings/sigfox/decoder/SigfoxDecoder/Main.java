@@ -12,16 +12,23 @@ public class Main {
 	        
 			decoder.display();
 			data.display();
-
-			System.out.println(data.getChar("char"));
-			System.out.println(data.getString("str"));
-			System.out.println(data.getInt("int1"));
-			System.out.println(data.getInt("int2"));
 			
-			//assert(data.getString("str") == "ABCDEF");
-			//assert(data.getInt("int1") == 291);
-			//assert(data.getInt("int2") == 1164413194);
-		} catch (UnregisteredVar | SyntaxError | UnknownType e) {
+			System.out.println(data.get("char"));
+			System.out.println(data.get("str"));
+			System.out.println(data.get("int1"));
+			System.out.println(data.get("int2"));
+			//System.out.println(data.get("unregistered_element"));
+			//assert(data.get("str") == "ABCDEF");
+			//assert(data.get("int1") == 291);
+			//assert(data.get("int2") == 1164413194);
+		} catch (UnregisteredVarException e) {
+			System.err.println("Unregistered variable exception");
+			e.printStackTrace();
+		} catch (SyntaxErrorException e) {
+			System.err.println("Syntax error in parser");
+			e.printStackTrace();
+		} catch (UnknownTypeException e) {
+			System.err.println("Unknown variable type exception");
 			e.printStackTrace();
 		}
 	}

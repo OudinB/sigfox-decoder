@@ -2,8 +2,7 @@ package ingeniousthings.sigfox.decoder.SigfoxDecoder;
 
 import java.math.BigInteger;
 
-import exceptions.SyntaxError;
-import exceptions.UnknownType;
+import exceptions.*;
 
 public class SigfoxDecoder {
 	
@@ -14,7 +13,7 @@ public class SigfoxDecoder {
 		this.format = new Format[format.length];
 		this.setFormat(format);
 	}
-	public SigfoxDecoder(String formatStr) throws SyntaxError, UnknownType {
+	public SigfoxDecoder(String formatStr) throws SyntaxErrorException, UnknownTypeException {
 		String[] lsVar = formatStr.split(" ");
 		format = new Format[lsVar.length];
 		
@@ -27,7 +26,7 @@ public class SigfoxDecoder {
 
 				format[i] = new Format(type, formatTmp[2], Integer.parseInt(interval[0]), Integer.parseInt(interval[1]));
 			} else
-				throw new SyntaxError();
+				throw new SyntaxErrorException();
 		}
 	}
 	
@@ -43,7 +42,7 @@ public class SigfoxDecoder {
 		}
 	}
 	
-	private VarType typeVar(String typeStr) throws UnknownType {
+	private VarType typeVar(String typeStr) throws UnknownTypeException {
 		VarType type;
 		switch(typeStr) {
 			case "bool" :
@@ -68,7 +67,7 @@ public class SigfoxDecoder {
 				type = VarType.STRING;
 				break;
 			default :
-				throw new UnknownType();
+				throw new UnknownTypeException();
 		}
 		return type;
 	}
@@ -82,10 +81,10 @@ public class SigfoxDecoder {
 		return res;
 	}
 	
-	public SigfoxData decode(String trame) throws UnknownType {
+	public SigfoxData decode(String trame) throws UnknownTypeException {
 		BigInteger n = new BigInteger("1" + trame, 16);
 		String bTrame = n.toString(2).substring(1);
-		SigfoxData data = new SigfoxData(format.length);
+		SigfoxData data = new SigfoxData();
 		
 		for(int i=0;i<format.length;++i) {
 			switch(format[i].getType()) {
@@ -112,7 +111,7 @@ public class SigfoxDecoder {
 				data.add(i, format[i].getName(), makeString(bTrame.substring(format[i].getBegin(), format[i].getEnd()+1)));
 				break;
 			default :
-				throw new UnknownType();
+				throw new UnknownTypeException();
 			}
 		}
 		return data;
@@ -122,7 +121,7 @@ public class SigfoxDecoder {
 		for(int i=0;i<format.length;++i)
 			System.out.println("Var n°" + i + " : \"" + format[i].getName()
 					+ "\" of type " + format[i].getType()
-					+ " occupying bits from " + format[i].getBegin()
+					+ " occupying bits " + format[i].getBegin()
 					+ " to " + format[i].getEnd());
 	}
 
