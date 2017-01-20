@@ -1,4 +1,4 @@
-package ingeniousthings.sigfox.decoder.Exception;
+package exceptions;
 
 public class UnregisteredVar extends Exception {
 	private static final long serialVersionUID = 1L;

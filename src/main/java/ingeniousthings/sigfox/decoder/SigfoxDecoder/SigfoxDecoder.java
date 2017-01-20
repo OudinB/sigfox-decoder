@@ -1,6 +1,9 @@
 package ingeniousthings.sigfox.decoder.SigfoxDecoder;
 
-import ingeniousthings.sigfox.decoder.Exception.*;
+import java.math.BigInteger;
+
+import exceptions.SyntaxError;
+import exceptions.UnknownType;
 
 public class SigfoxDecoder {
 	
@@ -14,12 +17,14 @@ public class SigfoxDecoder {
 	public SigfoxDecoder(String formatStr) throws SyntaxError, UnknownType {
 		String[] lsVar = formatStr.split(" ");
 		format = new Format[lsVar.length];
+		
 		for(int i=0; i<lsVar.length; ++i) {
 			String[] formatTmp = lsVar[i].split(":");
+			
 			if(formatTmp.length == 3) {
 				VarType type = typeVar(formatTmp[1]);
 				String[] interval = formatTmp[0].split("-");
-			
+
 				format[i] = new Format(type, formatTmp[2], Integer.parseInt(interval[0]), Integer.parseInt(interval[1]));
 			} else
 				throw new SyntaxError();
@@ -68,85 +73,43 @@ public class SigfoxDecoder {
 		return type;
 	}
 	
-	private int makeInt(int[] byteStr, int begin, int end) {
-		int res = 0;
-		for(int i=0;i<end+1-begin;++i)
-			res += byteStr[end-i]*Math.pow(2,i);
-		return res;
-	}
-	private float makeFloat(int[] byteStr, int begin, int end) {
-		float res = 0;
-		for(int i=0;i<end-begin;++i)
-			res += byteStr[end-i]*Math.pow(2,i);
-		
-		return res;
-	}
-	private double makeDouble(int[] byteStr, int begin, int end) {
-		double res = 0;
-		for(int i=0;i<end-begin;++i)
-			res += byteStr[end-i]*Math.pow(2,i);
-		
-		return res;
-	}
-	private char makeChar(int[] byteCh, int begin) {
-		return (char) makeInt(byteCh, begin, begin+7);
-	}
-	private String makeString(int[] byteStr, int begin, int end) {
+	private String makeString(String bTrame) {
 		String res = new String();
-
-		for(int i=0;i<(end+1-begin)/8;++i)
-			res += makeChar(byteStr, begin+i*8);
+		
+		for(int i=0;i<bTrame.length()-7;i+=8)
+			res += (char) Integer.parseInt(bTrame.substring(i, i+8), 2);
 		
 		return res;
-	}
-	
-	private static int[] toByteStr(String s) {
-		int[] byteStr = new int[s.length()*4];
-		for(int i=0;i<s.length();++i) {
-			int tmp = 0;
-
-			if(Character.isDigit(s.charAt(i)))
-				tmp = Integer.parseInt(s.substring(i, i+1));
-			else if(Character.isLetter(s.charAt(i)))
-				if(Character.isUpperCase(s.charAt(i)))
-					tmp = 10 + s.charAt(i) - 'A';
-				else
-					tmp = 10 + s.charAt(i) - 'a';
-				
-			byteStr[i*4+3] = tmp%2;
-			byteStr[i*4+2] = ((int) tmp/2)%2;
-			byteStr[i*4+1] = ((int) ((int) tmp/2)/2)%2;
-			byteStr[i*4] = ((int) ((int) ((int) tmp/2)/2)/2)%2;;
-		}
-	    return byteStr;
 	}
 	
 	public SigfoxData decode(String trame) throws UnknownType {
-		int[] bTrame = toByteStr(trame);
+		BigInteger n = new BigInteger("1" + trame, 16);
+		String bTrame = n.toString(2).substring(1);
 		SigfoxData data = new SigfoxData(format.length);
 		
 		for(int i=0;i<format.length;++i) {
 			switch(format[i].getType()) {
 			case BOOLEAN :
-				data.add(i, format[i].getName(), (Boolean) (bTrame[format[i].getBegin()] == 1));
+				data.add(i, format[i].getName(), (Boolean) (bTrame.charAt(format[i].getBegin()) == '1'));
 				break;
 			case BYTE :
-				data.add(i, format[i].getName(), bTrame[format[i].getBegin()]);
+				data.add(i, format[i].getName(), bTrame.charAt(format[i].getBegin()));
 				break;
 			case INTEGER :
-				data.add(i, format[i].getName(), (Integer) makeInt(bTrame, format[i].getBegin(), format[i].getEnd()));
+				data.add(i, format[i].getName(), Integer.parseInt(bTrame.substring(format[i].getBegin(), format[i].getEnd()+1), 2));
 				break;
 			case FLOAT :
-				data.add(i, format[i].getName(), (Float) makeFloat(bTrame, format[i].getBegin(), format[i].getEnd()));
+				data.add(i, format[i].getName(), Float.parseFloat(bTrame.substring(format[i].getBegin(), format[i].getEnd())));
 				break;
 			case DOUBLE :
-				data.add(i, format[i].getName(), (Double) makeDouble(bTrame, format[i].getBegin(), format[i].getEnd()));
+				data.add(i, format[i].getName(), Double.parseDouble(bTrame.substring(format[i].getBegin(), format[i].getEnd())));
 				break;
 			case CHAR :
-				data.add(i, format[i].getName(), (Character) makeChar(bTrame, format[i].getBegin()));
+				Character c = (char) Integer.parseInt(bTrame.substring(format[i].getBegin(), format[i].getBegin()+8), 2);
+				data.add(i, format[i].getName(), c);
 				break;
 			case STRING :
-				data.add(i, format[i].getName(), makeString(bTrame, format[i].getBegin(), format[i].getEnd()));
+				data.add(i, format[i].getName(), makeString(bTrame.substring(format[i].getBegin(), format[i].getEnd()+1)));
 				break;
 			default :
 				throw new UnknownType();
