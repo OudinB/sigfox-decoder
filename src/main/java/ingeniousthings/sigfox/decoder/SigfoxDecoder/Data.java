@@ -20,6 +20,7 @@ public class Data {
 		return var;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 	    if(!(o instanceof Data)) return false;
 	    Data other = (Data) o;

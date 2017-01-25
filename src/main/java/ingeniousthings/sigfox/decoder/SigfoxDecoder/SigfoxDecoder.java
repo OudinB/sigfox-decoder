@@ -13,7 +13,7 @@ public class SigfoxDecoder {
 		this.format = new Format[format.length];
 		this.setFormat(format);
 	}
-	public SigfoxDecoder(String formatStr) throws SyntaxErrorException, UnknownTypeException {
+	public SigfoxDecoder(String formatStr) throws SyntaxError, UnknownTypeException {
 		String[] lsVar = formatStr.split(" ");
 		format = new Format[lsVar.length];
 		
@@ -26,7 +26,7 @@ public class SigfoxDecoder {
 
 				format[i] = new Format(type, formatTmp[2], Integer.parseInt(interval[0]), Integer.parseInt(interval[1]));
 			} else
-				throw new SyntaxErrorException();
+				throw new SyntaxError();
 		}
 	}
 	
@@ -67,7 +67,7 @@ public class SigfoxDecoder {
 				type = VarType.STRING;
 				break;
 			default :
-				throw new UnknownTypeException();
+				throw new UnknownTypeException(typeStr);
 		}
 		return type;
 	}
@@ -81,7 +81,7 @@ public class SigfoxDecoder {
 		return res;
 	}
 	
-	public SigfoxData decode(String trame) throws UnknownTypeException {
+	public SigfoxData decode(String trame) {
 		BigInteger n = new BigInteger("1" + trame, 16);
 		String bTrame = n.toString(2).substring(1);
 		SigfoxData data = new SigfoxData();
@@ -110,19 +110,21 @@ public class SigfoxDecoder {
 			case STRING :
 				data.add(i, format[i].getName(), makeString(bTrame.substring(format[i].getBegin(), format[i].getEnd()+1)));
 				break;
-			default :
-				throw new UnknownTypeException();
 			}
 		}
 		return data;
 	}
-
-	public void display() {
+	
+	@Override
+	public String toString() {
+		String str = "";
 		for(int i=0;i<format.length;++i)
-			System.out.println("Var n°" + i + " : \"" + format[i].getName()
+			str += "Var n°" + i + ": \"" + format[i].getName()
 					+ "\" of type " + format[i].getType()
 					+ " occupying bits " + format[i].getBegin()
-					+ " to " + format[i].getEnd());
+					+ " to " + format[i].getEnd() + "\n";
+		
+		return str;
 	}
 
 }

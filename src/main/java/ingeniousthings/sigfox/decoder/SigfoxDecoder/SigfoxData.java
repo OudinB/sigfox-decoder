@@ -24,11 +24,15 @@ public class SigfoxData {
 		if(i != -1)
 			return data.get(i).getVar();
 		else
-			throw new UnregisteredVarException();
+			throw new UnregisteredVarException(name);
 	}
 	
-	public void display() {
+	@Override
+	public String toString() {
+		String str = "";
 		for(int i=0;i<data.size();++i)
-			System.out.println("Var n°" + i + " : " + data.get(i).getName()	+ " = " + data.get(i).getVar());
+			str += "Var n°" + i + ": " + data.get(i).getName()	+ " = " + data.get(i).getVar() + "\n";
+		
+		return str;
 	}
 }
