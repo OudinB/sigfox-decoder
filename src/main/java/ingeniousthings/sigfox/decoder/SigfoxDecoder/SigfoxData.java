@@ -1,5 +1,4 @@
 package ingeniousthings.sigfox.decoder.SigfoxDecoder;
-
 import java.util.*;
 import exceptions.*;
 
@@ -31,7 +30,7 @@ public class SigfoxData {
 	public String toString() {
 		String str = "";
 		for(int i=0;i<data.size();++i)
-			str += "Var n°" + i + ": " + data.get(i).getName()	+ " = " + data.get(i).getVar() + "\n";
+			str += "Var#" + i + ": " + data.get(i).getName()	+ " = " + data.get(i).getVar() + "\n";
 		
 		return str;
 	}

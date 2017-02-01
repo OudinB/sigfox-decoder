@@ -1,7 +1,5 @@
 package ingeniousthings.sigfox.decoder.SigfoxDecoder;
-
 import java.math.BigInteger;
-
 import exceptions.*;
 
 public class SigfoxDecoder {
@@ -119,7 +117,7 @@ public class SigfoxDecoder {
 	public String toString() {
 		String str = "";
 		for(int i=0;i<format.length;++i)
-			str += "Var n°" + i + ": \"" + format[i].getName()
+			str += "Var#" + i + ": \"" + format[i].getName()
 					+ "\" of type " + format[i].getType()
 					+ " occupying bits " + format[i].getBegin()
 					+ " to " + format[i].getEnd() + "\n";

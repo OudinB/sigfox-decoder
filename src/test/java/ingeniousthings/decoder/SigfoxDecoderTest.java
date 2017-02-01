@@ -20,15 +20,13 @@ public class SigfoxDecoderTest {
         Assertions.assertThat(data.get("int1")).isEqualTo(291);
         Assertions.assertThat(data.get("int2")).isEqualTo(1164413194);
     }
-    @Test
-    public void testFalseVariale() throws SyntaxError, UnknownTypeException {
+    @Test(expected = UnregisteredVarException.class)
+    public void testFalseVariale() throws SyntaxError, UnknownTypeException, UnregisteredVarException {
     	SigfoxDecoder decoder = new SigfoxDecoder("0-3:int:temperature");
     	SigfoxData data = decoder.decode("c101013030320e0c03ed8000");
 
-    	try {
+    	
 			data.get("false_variable");
-		} catch (UnregisteredVarException e) {
-			e.printStackTrace();
-		}
+		
     }
 }
