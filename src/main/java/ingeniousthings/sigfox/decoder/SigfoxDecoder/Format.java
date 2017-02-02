@@ -1,16 +1,21 @@
 package ingeniousthings.sigfox.decoder.SigfoxDecoder;
 
+import exceptions.SyntaxError;
+
 public class Format {
 	private VarType type;
 	private String name;
-	private int begin;
+	private int start;
 	private int end;
 	
-	public Format(VarType type, String name, int begin, int end) {
-		this.type = type;
-		this.name = name;
-		this.begin = begin;
-		this.end = end;
+	public Format(VarType type, String name, Integer start, Integer end) throws SyntaxError {
+		if(name != null && start != null && end != null) {
+			this.type = type;
+			this.name = name;
+			this.start = start;
+			this.end = end;
+		} else
+			throw new SyntaxError();
 	}
 
 	public VarType getType() {
@@ -19,8 +24,8 @@ public class Format {
 	public String getName() {
 		return name;
 	}
-	public int getBegin() {
-		return begin;
+	public int getStart() {
+		return start;
 	}
 	public int getEnd() {
 		return end;

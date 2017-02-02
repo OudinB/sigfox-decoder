@@ -1,0 +1,30 @@
+{
+	"message": {
+		"length": 52,
+		"format": [{
+			"start": 0,
+			"end": 3,
+			"type": "int",
+			"name": "temperature"
+		}, {
+			"start": 4,
+			"end": 51,
+			"type": "string",
+			"name": "name"
+		}]
+	},
+	"config": {
+		"length": 8,
+		"format": [{
+			"start": 0,
+			"end": 3,
+			"type": "string",
+			"name": "firmware"
+		}, {
+			"start": 4,
+			"end": 7,
+			"type": "string",
+			"name": "version"
+		}]
+	}
+}

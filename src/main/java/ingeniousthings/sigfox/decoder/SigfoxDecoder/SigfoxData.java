@@ -1,6 +1,9 @@
 package ingeniousthings.sigfox.decoder.SigfoxDecoder;
-import java.util.*;
-import exceptions.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import exceptions.UnregisteredVarException;
 
 public class SigfoxData {
 	private List<Data> data = new ArrayList<Data>();;

@@ -1,6 +1,11 @@
 package ingeniousthings.decoder;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.assertj.core.api.Assertions;
+import org.json.simple.parser.ParseException;
 import org.junit.Test;
 
 import exceptions.SyntaxError;
@@ -25,8 +30,22 @@ public class SigfoxDecoderTest {
     	SigfoxDecoder decoder = new SigfoxDecoder("0-3:int:temperature");
     	SigfoxData data = decoder.decode("c101013030320e0c03ed8000");
 
+    	data.get("false_variable");
+    }
+    
+    @Test
+    public void testJSONDecoder() throws FileNotFoundException, ParseException, IOException, SyntaxError, UnknownTypeException, UnregisteredVarException {
+    	SigfoxDecoder messageDecoder = new SigfoxDecoder("message", new FileReader("./format.json"));
+    	SigfoxData dataMessage = messageDecoder.decode("c414243444546");
     	
-			data.get("false_variable");
-		
+    	Assertions.assertThat(dataMessage.get("temperature")).isEqualTo(12);
+    	Assertions.assertThat(dataMessage.get("name")).isEqualTo("ABCDEF");
+    }
+    @Test(expected = UnregisteredVarException.class)
+    public void testJSONFalseVariable() throws FileNotFoundException, ParseException, IOException, SyntaxError, UnknownTypeException, UnregisteredVarException {
+    	SigfoxDecoder messageDecoder = new SigfoxDecoder("message", new FileReader("./format.json"));
+    	SigfoxData dataMessage = messageDecoder.decode("c414243444546");
+    	
+    	dataMessage.get("false_variable");
     }
 }
