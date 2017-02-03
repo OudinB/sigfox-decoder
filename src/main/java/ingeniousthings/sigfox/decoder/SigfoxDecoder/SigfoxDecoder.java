@@ -30,7 +30,7 @@ public class SigfoxDecoder {
 			String[] formatTmp = lsVar[i].split(":");
 			
 			if(formatTmp.length == 3) {
-				VarType type = typeVar(formatTmp[1]);
+				VarType type = VarType.toVarType(formatTmp[1]);
 				String[] interval = formatTmp[0].split("-");
 
 				format[i] = new Format(type, formatTmp[2], Integer.parseInt(interval[0]), Integer.parseInt(interval[1]));
@@ -51,7 +51,7 @@ public class SigfoxDecoder {
 			for(int i=0; i<jsonArray.size(); ++i) {
 				JSONObject jsonElem = (JSONObject) parser.parse(jsonArray.get(i).toString());
 				
-				VarType type = typeVar((String) jsonElem.get("type"));
+				VarType type = VarType.toVarType((String) jsonElem.get("type"));
 				Integer start = jsonElem.get("start") != null ? ((Long) jsonElem.get("start")).intValue() : null;
 				Integer end = jsonElem.get("end") != null ? ((Long) jsonElem.get("end")).intValue() : null;
 				String name = (String) jsonElem.get("name");
@@ -71,37 +71,6 @@ public class SigfoxDecoder {
 		for(int i=0;i<format.length;++i) {
 			this.format[i] = new Format(format[i].getType(), format[i].getName(), format[i].getStart(), format[i].getEnd());
 		}
-	}
-	
-	private VarType typeVar(String typeStr) throws UnknownTypeException {
-		VarType type;
-		switch(typeStr) {
-			case "bool" :
-				type = VarType.BOOLEAN;
-				break;
-			case "byte" :
-				type = VarType.BYTE;
-				break;
-			case "int" :
-				type = VarType.INTEGER;
-				break;
-			case "float" :
-				type = VarType.FLOAT;
-				break;
-			case "double" :
-				type = VarType.DOUBLE;
-				break;
-			case "char" :
-				type = VarType.CHAR;
-				break;
-			case "str" :
-			case "string" :
-				type = VarType.STRING;
-				break;
-			default :
-				throw new UnknownTypeException(typeStr);
-		}
-		return type;
 	}
 	
 	private String makeString(String bTrame) {
@@ -147,16 +116,20 @@ public class SigfoxDecoder {
 		return data;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public String toString() {
-		String str = "";
-		for(int i=0;i<format.length;++i)
-			str += "Var#" + i + ": \"" + format[i].getName()
-					+ "\" of type " + format[i].getType()
-					+ " occupying bits " + format[i].getStart()
-					+ " to " + format[i].getEnd() + "\n";
-		
-		return str;
+		JSONArray jsonArray = new JSONArray();
+		for(Format elem : this.format) {
+			JSONObject jsonObj = new JSONObject();
+			
+			jsonObj.put("start", elem.getStart());
+			jsonObj.put("end", elem.getEnd());
+			jsonObj.put("type", elem.getType());
+			jsonObj.put("name", elem.getName());
+			jsonArray.add(jsonObj);
+		}
+		return jsonArray.toString();
 	}
 
 }

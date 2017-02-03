@@ -1,7 +1,12 @@
 package ingeniousthings.sigfox.decoder.SigfoxDecoder;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.json.simple.JSONObject;
 
 import exceptions.UnregisteredVarException;
 
@@ -16,11 +21,9 @@ public class SigfoxData {
 	public List<Data> getData() {
 		return data;
 	}
-	
 	public void add(int i, String name, Object var) {
 		data.add(i, new Data(name, var));
 	}
-	
 	public Object get(String name) throws UnregisteredVarException {
 		int i = data.indexOf(new Data(name));
 		if(i != -1)
@@ -29,12 +32,19 @@ public class SigfoxData {
 			throw new UnregisteredVarException(name);
 	}
 	
+	public void JSONStore(PrintWriter file) throws FileNotFoundException, UnsupportedEncodingException {
+	    file.println(this.toString());
+	    file.close();
+	}
+	
+	@SuppressWarnings("unchecked")
 	@Override
 	public String toString() {
-		String str = "";
-		for(int i=0;i<data.size();++i)
-			str += "Var#" + i + ": " + data.get(i).getName()	+ " = " + data.get(i).getVar() + "\n";
+		JSONObject jsonObj = new JSONObject();
 		
-		return str;
+		for(Data elem : this.data)
+			jsonObj.put(elem.getName(), elem.getVar());
+		
+		return jsonObj.toString();
 	}
 }

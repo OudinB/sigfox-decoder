@@ -3,6 +3,9 @@ package ingeniousthings.sigfox.decoder.SigfoxDecoder;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.simple.parser.ParseException;
 
@@ -10,22 +13,31 @@ import exceptions.SyntaxError;
 import exceptions.UnknownTypeException;
 
 public class Main {
+	public static boolean option(String[] args) {
+		List<String> argsLs = new ArrayList<String>();
+		for(String elem : args)
+			argsLs.add(elem);
+		return argsLs.contains("--format") && argsLs.contains("--out")&& args.length == 4;
+	}
+	public static String JSONTarget(String option, String[] args) {
+		List<String> argsLs = new ArrayList<String>();
+		for(String elem : args)
+			argsLs.add(elem);
+			
+		return args[argsLs.indexOf(option)+1];
+	}
 	
 	public static void main(String[] args) throws SyntaxError, UnknownTypeException, ParseException, FileNotFoundException, IOException {
-		SigfoxDecoder decoder = new SigfoxDecoder("message", new FileReader("./format.json"));
-		SigfoxData data = decoder.decode("c414243444546");
-    		
-		System.out.println(decoder);
-		System.out.println(data);
-		/**
-		SigfoxDecoder decoder = new SigfoxDecoder("0-7:char:char 0-47:str:str 48-63:int:int1 64-95:int:int2");
-		SigfoxData data = decoder.decode("41424344454601234567890A");
-		//SigfoxDecoder decoder = new SigfoxDecoder("0-3:int:temperature");
-        //SigfoxData data = decoder.decode("c101013030320e0c03ed8000");
-        
-		System.out.println(decoder);
-		System.out.println(data);
-		**/
+		if(option(args)) {
+			SigfoxDecoder decoder = new SigfoxDecoder("message", new FileReader("./" + JSONTarget("--format", args)));
+			SigfoxData data = decoder.decode("c414243444546");
+	    		
+			System.out.println(decoder);
+			System.out.println(data);
+			
+			data.JSONStore(new PrintWriter("./" + JSONTarget("--out", args)));
+		} else
+			throw new SyntaxError();
 	}
 
 }

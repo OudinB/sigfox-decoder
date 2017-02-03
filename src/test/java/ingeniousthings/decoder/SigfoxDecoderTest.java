@@ -11,7 +11,8 @@ import org.junit.Test;
 import exceptions.SyntaxError;
 import exceptions.UnknownTypeException;
 import exceptions.UnregisteredVarException;
-import ingeniousthings.sigfox.decoder.SigfoxDecoder.*;
+import ingeniousthings.sigfox.decoder.SigfoxDecoder.SigfoxData;
+import ingeniousthings.sigfox.decoder.SigfoxDecoder.SigfoxDecoder;
 
 public class SigfoxDecoderTest {
 
