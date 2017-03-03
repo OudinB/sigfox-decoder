@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.json.simple.parser.ParseException;
 
+import exceptions.CommandError;
 import exceptions.SyntaxError;
 import exceptions.UnknownTypeException;
 
@@ -27,7 +28,7 @@ public class Main {
 		return args[argsLs.indexOf(option)+1];
 	}
 	
-	public static void main(String[] args) throws SyntaxError, UnknownTypeException, ParseException, FileNotFoundException, IOException {
+	public static void main(String[] args) throws SyntaxError, UnknownTypeException, ParseException, FileNotFoundException, IOException, CommandError {
 		if(option(args)) {
 			SigfoxDecoder decoder = new SigfoxDecoder("message", new FileReader("./" + JSONTarget("--format", args)));
 			SigfoxData data = decoder.decode("c414243444546");
@@ -37,7 +38,7 @@ public class Main {
 			
 			data.JSONStore(new PrintWriter("./" + JSONTarget("--out", args)));
 		} else
-			throw new SyntaxError();
+			throw new CommandError();
 	}
 
 }
